@@ -1,0 +1,120 @@
+NAME:T.PAVAN KUMAR REDDY
+REG NO:192524082
+COURSE:OPERATING SYSTEM
+CODE:CSA0406
+
+## Q1. Deadlock Debugging (Code Trace)
+
+### Cause of Deadlock
+
+A deadlock occurs because the two processes acquire the resources in different orders.
+
+* **P1** locks **R1** first and then waits for **R2**.
+* **P2** locks **R2** first and then waits for **R1**.
+
+If both processes lock their first resource simultaneously, each waits indefinitely for the other resource, creating a **circular wait**, which causes a deadlock.
+
+### Deadlock Condition
+
+The exact condition is **Circular Wait**, one of the four necessary deadlock conditions:
+
+1. Mutual Exclusion
+2. Hold and Wait
+3. No Preemption
+4. Circular Wait
+
+### Optimization
+
+Acquire resources in the **same order** in both processes.
+
+Example:
+
+* P1: Lock(R1) → Lock(R2)
+* P2: Lock(R1) → Lock(R2)
+
+This removes the circular wait condition and prevents deadlock.
+
+---
+
+## Q2. CPU Utilization Problem
+
+### Cause
+
+The scheduler log:
+
+```
+Ready → Waiting → Ready → Waiting → Ready
+```
+
+indicates that processes spend most of their time waiting for I/O operations instead of executing on the CPU.
+
+Therefore, the CPU remains idle frequently, resulting in only **30% CPU utilization**.
+
+### Optimization
+
+1. Use **asynchronous I/O** so processes can continue execution while I/O is performed.
+2. Increase the **degree of multiprogramming**, allowing the CPU to execute another ready process while one is waiting for I/O.
+
+**Result:** CPU utilization improves because the processor spends less time idle.
+
+---
+
+## Q3. Memory Bottleneck Debugging
+
+### Cause
+
+Memory usage:
+
+* Code = **5 MB**
+* Heap = **150 MB**
+* Stack = **25 × 1 MB = 25 MB**
+* Total = **180 MB**
+
+Although physical RAM is 2 GB, the large heap combined with many threads can cause poor memory locality and increased page faults, especially if the application accesses many different memory pages. Frequent page faults slow down execution.
+
+### Optimizations
+
+1. Reduce heap memory usage by releasing unused memory or using more efficient data structures.
+2. Reduce the number of threads or decrease stack size per thread (or use a thread pool).
+
+**Result:** Page faults decrease and application performance improves.
+
+---
+
+## Q4. Starvation Debugging
+
+### Cause
+
+Process **P5** is in the **lowest-priority queue (Q3)**.
+
+Since higher-priority queues (**Q1** and **Q2**) continuously receive processes, Q3 never gets CPU time.
+
+This causes **starvation**.
+
+### Optimization
+
+Use **Aging**.
+
+Increase the priority of a process that waits for a long time so it eventually moves to a higher-priority queue and receives CPU time.
+
+**Result:** Starvation is eliminated, and all processes get a fair chance to execute.
+
+---
+
+## Q5. Context-Switch Overhead Debugging
+
+### Cause
+
+* Context switches = **20,000 per second**
+* Time quantum = **1 ms**
+* Average CPU burst = **2 ms**
+* Very frequent I/O operations
+
+The time quantum is too small, so processes are preempted frequently before completing execution. Combined with frequent I/O waits, this results in excessive context switching and high CPU overhead.
+
+### Optimizations
+
+1. Increase the **time quantum** (for example, from 1 ms to 5 ms) to reduce unnecessary preemptions.
+2. Reduce I/O wait frequency using asynchronous or buffered I/O so processes spend less time blocking.
+
+**Result:** Context switches decrease, CPU overhead is reduced, and overall system performance improves.
