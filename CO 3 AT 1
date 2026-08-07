@@ -1,0 +1,122 @@
+Name : T.Pavan Kumar Reddy
+RegNo: 192524082
+Course:Operating System
+1. Base and Limit Register
+Program
+#include <stdio.h>
+
+int main() {
+    int base, limit, logical;
+
+    printf("Enter Base Address: ");
+    scanf("%d", &base);
+
+    printf("Enter Limit: ");
+    scanf("%d", &limit);
+
+    printf("Enter Logical Address: ");
+    scanf("%d", &logical);
+
+    if (logical < limit)
+        printf("Physical Address = %d", base + logical);
+    else
+        printf("Invalid Address");
+
+    return 0;
+}
+Sample Output
+Enter Base Address: 1000
+Enter Limit: 500
+Enter Logical Address: 200
+Physical Address = 1200
+2. Paging Address Translation
+Program
+#include <stdio.h>
+
+int main() {
+    int pageTable[5] = {5, 8, 1, 9, 4};
+    int page, offset;
+
+    printf("Enter Page Number: ");
+    scanf("%d", &page);
+
+    printf("Enter Offset: ");
+    scanf("%d", &offset);
+
+    printf("Physical Address = %d\n", pageTable[page] * 100 + offset);
+
+    return 0;
+}
+Sample Output
+Enter Page Number: 2
+Enter Offset: 50
+Physical Address = 150
+3. Page Table Simulation
+Program
+#include <stdio.h>
+
+int main() {
+    int pageTable[5] = {3, 7, 5, 1, 8};
+    int page;
+
+    printf("Enter Page Number: ");
+    scanf("%d", &page);
+
+    printf("Frame Number = %d", pageTable[page]);
+
+    return 0;
+}
+Sample Output
+Enter Page Number: 3
+Frame Number = 1
+4. TLB Effective Memory Access Time
+Program
+#include <stdio.h>
+
+int main() {
+    float hitRatio, memoryTime, emat;
+
+    printf("Enter Hit Ratio: ");
+    scanf("%f", &hitRatio);
+
+    printf("Enter Memory Access Time: ");
+    scanf("%f", &memoryTime);
+
+    emat = hitRatio * memoryTime + (1 - hitRatio) * (2 * memoryTime);
+
+    printf("Effective Memory Access Time = %.2f", emat);
+
+    return 0;
+}
+Sample Output
+Enter Hit Ratio: 0.8
+Enter Memory Access Time: 100
+Effective Memory Access Time = 120.00
+5. Memory Protection
+Program
+#include <stdio.h>
+
+int main() {
+    int base, limit, address;
+
+    printf("Enter Base: ");
+    scanf("%d", &base);
+
+    printf("Enter Limit: ");
+    scanf("%d", &limit);
+
+    printf("Enter Address: ");
+    scanf("%d", &address);
+
+    if (address >= base && address < base + limit)
+        printf("Access Allowed");
+    else
+        printf("Access Denied");
+
+    return 0;
+}
+Sample Output
+Enter Base: 1000
+Enter Limit: 500
+Enter Address: 1200
+Access Allowed
