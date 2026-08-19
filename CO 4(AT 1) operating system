@@ -1,0 +1,467 @@
+Name :T.Pavan Kumar Reddy
+Reg No :192524082
+Course :Operating system
+Course : CSA0406
+1. File Allocation — Contiguous, Linked, Indexed
+#include <stdio.h>
+                    break;
+                }
+            }
+            if (free) {
+                start = i;
+                break;
+            }
+        }
+
+
+        if (start == -1) {
+            printf("Contiguous allocation failed: insufficient continuous space\n");
+        } else {
+            printf("Allocated blocks: ");
+            for (i = 0; i < size; i++) {
+                disk[start + i] = 1;
+                printf("%d ", start + i);
+            }
+            printf("\n");
+        }
+    }
+
+
+    else if (method == 2) {
+        /* Linked */
+        int count = 0;
+
+
+        for (i = 0; i < n && count < size; i++) {
+            if (disk[i] == 0) {
+                blocks[count++] = i;
+                disk[i] = 1;
+            }
+        }
+
+
+        if (count < size) {
+            printf("Linked allocation failed\n");
+        } else {
+            printf("Allocated blocks: ");
+            for (i = 0; i < size; i++)
+                printf("%d ", blocks[i]);
+            printf("\n");
+        }
+    }
+
+
+    else if (method == 3) {
+        /* Indexed */
+        int indexBlock = -1, count = 0;
+
+
+        for (i = 0; i < n; i++) {
+            if (disk[i] == 0) {
+                indexBlock = i;
+                disk[i] = 1;
+                break;
+            }
+        }
+
+
+        for (i = 0; i < n && count < size; i++) {
+            if (disk[i] == 0) {
+                blocks[count++] = i;
+                disk[i] = 1;
+            }
+        }
+
+
+        if (count < size) {
+            printf("Indexed allocation failed\n");
+        } else {
+            printf("Index block: %d\n", indexBlock);
+            printf("Allocated blocks: ");
+            for (i = 0; i < size; i++)
+                printf("%d ", blocks[i]);
+            printf("\n");
+        }
+    }
+
+
+    else {
+        printf("Invalid method\n");
+    }
+
+
+    return 0;
+}
+2. Bitmap Disk Space Management
+#include <stdio.h>
+
+
+int main() {
+    int n, bitmap[100], request;
+    int i, count = 0, block;
+
+
+    printf("Enter number of disk blocks: ");
+    scanf("%d", &n);
+
+
+    printf("Enter bitmap (0=free, 1=allocated):\n");
+    for (i = 0; i < n; i++)
+        scanf("%d", &bitmap[i]);
+
+
+    printf("Enter number of blocks to allocate: ");
+    scanf("%d", &request);
+
+
+    for (i = 0; i < n && count < request; i++) {
+        if (bitmap[i] == 0) {
+            bitmap[i] = 1;
+            count++;
+        }
+    }
+
+
+    if (count < request) {
+        printf("Not enough free blocks\n");
+    } else {
+        printf("Allocation successful\n");
+    }
+
+
+    printf("Bitmap after allocation:\n");
+    for (i = 0; i < n; i++)
+        printf("%d ", bitmap[i]);
+
+
+    printf("\nEnter block number to deallocate (-1 to stop):\n");
+
+
+    while (1) {
+        scanf("%d", &block);
+
+
+        if (block == -1)
+            break;
+
+
+        if (block >= 0 && block < n && bitmap[block] == 1) {
+            bitmap[block] = 0;
+            printf("Block %d deallocated\n", block);
+        } else {
+            printf("Invalid or already free block\n");
+        }
+    }
+
+
+    printf("Final bitmap:\n");
+    for (i = 0; i < n; i++)
+        printf("%d ", bitmap[i]);
+
+
+    return 0;
+}
+3. FCFS, SSTF and SCAN Disk Scheduling
+#include <stdio.h>
+        int cur = head;
+        for (i = 0; i < n; i++) {
+            fcfs += abs(cur - req[i]);
+            cur = req[i];
+            printf("%d ", cur);
+        }
+    }
+
+
+    /* SSTF */
+    {
+        int visited[100] = {0};
+        int cur = head, min, pos;
+
+
+        printf("\nSSTF Sequence: %d ", head);
+
+
+        for (i = 0; i < n; i++) {
+            min = 99999;
+            pos = -1;
+
+
+            for (j = 0; j < n; j++) {
+                if (!visited[j] && abs(cur - req[j]) < min) {
+                    min = abs(cur - req[j]);
+                    pos = j;
+                }
+            }
+
+
+            visited[pos] = 1;
+            sstf += abs(cur - req[pos]);
+            cur = req[pos];
+            printf("%d ", cur);
+        }
+    }
+
+
+    /* SCAN - moving towards 0 first */
+    {
+        int temp[100], count = 0, cur = head;
+
+
+        for (i = 0; i < n; i++)
+            temp[i] = req[i];
+
+
+        /* Sort */
+        for (i = 0; i < n - 1; i++)
+            for (j = i + 1; j < n; j++)
+                if (temp[i] > temp[j]) {
+                    int t = temp[i];
+                    temp[i] = temp[j];
+                    temp[j] = t;
+                }
+
+
+        printf("\nSCAN Sequence: %d ", head);
+
+
+        for (i = n - 1; i >= 0; i--) {
+            if (temp[i] <= head) {
+                scan += abs(cur - temp[i]);
+                cur = temp[i];
+                printf("%d ", cur);
+            }
+        }
+
+
+        if (cur != 0) {
+            scan += cur;
+            cur = 0;
+            printf("0 ");
+        }
+
+
+        for (i = 0; i < n; i++) {
+            if (temp[i] > head) {
+                scan += abs(cur - temp[i]);
+                cur = temp[i];
+                printf("%d ", cur);
+            }
+        }
+    }
+
+
+    printf("\n\nTotal Seek Time:");
+    printf("\nFCFS = %d", fcfs);
+    printf("\nSSTF = %d", sstf);
+    printf("\nSCAN = %d\n", scan);
+
+
+    if (fcfs <= sstf && fcfs <= scan)
+        printf("Best: FCFS\n");
+    else if (sstf <= fcfs && sstf <= scan)
+        printf("Best: SSTF\n");
+    else
+        printf("Best: SCAN\n");
+
+
+    return 0;
+}
+4. C-SCAN and LOOK Disk Scheduling
+#include <stdio.h>
+            }
+
+
+            if (cur != 0) {
+                cscan += cur;
+                cur = 0;
+                printf("0 ");
+            }
+
+
+            cscan += disk - 1;
+            cur = disk - 1;
+            printf("%d ", cur);
+
+
+            for (i = n - 1; i >= 0; i--) {
+                if (temp[i] > head) {
+                    cscan += abs(cur - temp[i]);
+                    cur = temp[i];
+                    printf("%d ", cur);
+                }
+            }
+        }
+    }
+
+
+    /* LOOK */
+    printf("\nLOOK Sequence: %d ", head);
+    {
+        int cur = head;
+
+
+        if (direction == 1) {
+            for (i = 0; i < n; i++) {
+                if (temp[i] >= head) {
+                    look += abs(cur - temp[i]);
+                    cur = temp[i];
+                    printf("%d ", cur);
+                }
+            }
+
+
+            for (i = n - 1; i >= 0; i--) {
+                if (temp[i] < head) {
+                    look += abs(cur - temp[i]);
+                    cur = temp[i];
+                    printf("%d ", cur);
+                }
+            }
+        } else {
+            for (i = n - 1; i >= 0; i--) {
+                if (temp[i] <= head) {
+                    look += abs(cur - temp[i]);
+                    cur = temp[i];
+                    printf("%d ", cur);
+                }
+            }
+
+
+            for (i = 0; i < n; i++) {
+                if (temp[i] > head) {
+                    look += abs(cur - temp[i]);
+                    cur = temp[i];
+                    printf("%d ", cur);
+                }
+            }
+        }
+    }
+
+
+    printf("\n\nC-SCAN Total Head Movement = %d", cscan);
+    printf("\nLOOK Total Head Movement = %d\n", look);
+
+
+    if (cscan < look)
+        printf("Better Algorithm: C-SCAN\n");
+    else if (look < cscan)
+        printf("Better Algorithm: LOOK\n");
+    else
+        printf("Both have equal performance\n");
+
+
+    return 0;
+}
+5. File Allocation + Disk Scheduling
+#include <stdio.h>
+            printf("Contiguous allocation failed\n");
+            return 0;
+        }
+
+
+        for (i = 0; i < size; i++)
+            blocks[i] = start + i;
+    }
+
+
+    else if (method == 2) {
+        int indexBlock = -1;
+
+
+        for (i = 0; i < n; i++) {
+            if (!disk[i]) {
+                indexBlock = i;
+                disk[i] = 1;
+                break;
+            }
+        }
+
+
+        for (i = 0; i < n && count < size; i++) {
+            if (!disk[i]) {
+                blocks[count++] = i;
+                disk[i] = 1;
+            }
+        }
+
+
+        if (count < size) {
+            printf("Indexed allocation failed\n");
+            return 0;
+        }
+
+
+        printf("Index Block = %d\n", indexBlock);
+    }
+
+
+    else {
+        printf("Invalid allocation method\n");
+        return 0;
+    }
+
+
+    printf("Allocated blocks: ");
+    for (i = 0; i < size; i++)
+        printf("%d ", blocks[i]);
+
+
+    /* Disk Scheduling */
+    if (schedule == 1) {
+        int cur = head;
+
+
+        printf("\nFCFS Seek Sequence: %d ", cur);
+
+
+        for (i = 0; i < size; i++) {
+            seek += abs(cur - blocks[i]);
+            cur = blocks[i];
+            printf("%d ", cur);
+        }
+
+
+        printf("\nTotal Seek Time = %d\n", seek);
+    }
+
+
+    else if (schedule == 2) {
+        int visited[100] = {0};
+        int cur = head;
+
+
+        printf("\nSSTF Seek Sequence: %d ", cur);
+
+
+        for (i = 0; i < size; i++) {
+            int min = 99999, pos = -1;
+
+
+            for (j = 0; j < size; j++) {
+                if (!visited[j] && abs(cur - blocks[j]) < min) {
+                    min = abs(cur - blocks[j]);
+                    pos = j;
+                }
+            }
+
+
+            visited[pos] = 1;
+            seek += abs(cur - blocks[pos]);
+            cur = blocks[pos];
+
+
+            printf("%d ", cur);
+        }
+
+
+        printf("\nTotal Seek Time = %d\n", seek);
+    }
+
+
+    else {
+        printf("Invalid scheduling method\n");
+    }
+
+
+    return 0;
+}
