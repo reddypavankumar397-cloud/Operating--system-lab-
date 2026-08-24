@@ -1,0 +1,486 @@
+Name :T.Pavan Kumar Reddy
+Reg No:192524082
+Course:Operating System
+1. Optimized Linux File-System Layout for a 50 GB Server 
+
+### Introduction
+
+The server has a **50 GB storage capacity** and must store rapidly growing **system logs, user files, and application data**. If all data is stored in the root (`/`) partition, logs or application files could consume all available space and cause critical services to stop.
+
+Therefore, the disk should be divided into separate partitions/logical volumes, and **LVM, log rotation, quotas, and disk monitoring** should be used.
+
+### Proposed Partition Layout
+
+| Partition / Volume       |      Size | Purpose                            |
+| ------------------------ | --------: | ---------------------------------- |
+| `/boot`                  |      1 GB | Kernel and boot files              |
+| `/`                      |      8 GB | Operating system and system files  |
+| `/var`                   |     10 GB | Logs and service-related data      |
+| `/home`                  |     10 GB | User files                         |
+| `/opt`                   |      8 GB | Application data                   |
+| `/tmp`                   |      2 GB | Temporary files                    |
+| Swap                     |      4 GB | Virtual memory                     |
+| Free space / LVM reserve |      7 GB | Future expansion and emergency use |
+| **Total**                | **50 GB** |                                    |
+
+### 1. Separate `/var`
+
+The `/var` directory should be separated because system and application logs are normally stored there.
+
+If logs grow excessively, they will fill `/var` rather than the root filesystem. This protects the operating system from disk exhaustion.
+
+### 2. Use LVM
+
+**Logical Volume Manager (LVM)** should be used for `/var`, `/home`, and `/opt`.
+
+Advantages:
+
+* Logical volumes can be expanded when required.
+* Storage can be allocated dynamically.
+* Free space can be reserved for future requirements.
+* It is easier to manage than fixed partitions.
+
+For example:
+
+```bash
+lvcreate -L 10G -n var_lv vg0
+lvcreate -L 10G -n home_lv vg0
+lvcreate -L 8G -n opt_lv vg0
+```
+
+### 3. Log Rotation
+
+The requirement states that **log files must not exceed 10 GB**. `logrotate` should therefore be configured to rotate logs regularly.
+
+Example:
+
+```text
+/var/log/*.log {
+    daily
+    rotate 7
+    size 500M
+    compress
+    delaycompress
+    missingok
+    notifempty
+}
+```
+
+Here:
+
+* `daily` — rotates logs every day.
+* `rotate 7` — keeps seven old log files.
+* `size 500M` — rotates when a log reaches 500 MB.
+* `compress` — compresses old logs.
+* `missingok` — does not generate an error if a log is missing.
+* `notifempty` — does not rotate empty logs.
+
+The exact retention policy should be calculated so that the combined log storage remains **below 10 GB**.
+
+### 4. Disk Monitoring
+
+The administrator should regularly monitor disk usage:
+
+```bash
+df -h
+```
+
+To identify which directories consume space:
+
+```bash
+du -sh /var/*
+```
+
+An alert can be configured when `/var` reaches, for example, **80–85% utilization**.
+
+### 5. User Storage Quotas
+
+Disk quotas can be enabled on `/home` to prevent one user from consuming the entire available space.
+
+This ensures that user files cannot interfere with critical system and application storage.
+
+### 6. Protect Critical Services
+
+To prevent services from stopping because of disk exhaustion:
+
+* Keep `/`, `/var`, `/home`, and `/opt` separate.
+* Reserve free LVM space.
+* Rotate and compress logs.
+* Monitor disk utilization.
+* Configure alerts before the disk becomes full.
+* Remove unnecessary package caches and temporary files.
+* Use quotas for users.
+
+### Conclusion
+
+The **50 GB disk should not be treated as one large partition**. Separating `/var`, `/home`, and `/opt` prevents one type of data from consuming the entire disk. **LVM** provides flexibility for future expansion, while **logrotate** keeps log storage below the required **10 GB limit**. Monitoring, quotas, and reserved storage ensure that critical services continue operating even when storage usage increases.
+ 2. Kernel-Level Optimization for High CPU Workloads 
+
+### Introduction
+
+A Linux system handling high CPU workloads may suffer from **frequent context switching**, where the CPU repeatedly switches between processes or threads. This increases scheduling overhead and reduces the time available for actual computation.
+
+Since hardware upgrades are not possible, **kernel and scheduler optimization** can be used to improve performance and support real-time processing.
+
+### 1. Scheduler Tuning
+
+Linux provides different scheduling policies. For real-time applications, `SCHED_FIFO` and `SCHED_RR` can provide higher scheduling priority.
+
+Example:
+
+```bash
+chrt -f 80 ./realtime_app
+```
+
+Here, the application is given a real-time FIFO scheduling policy with priority 80.
+
+Care must be taken because excessive real-time priority can prevent normal processes from getting CPU time.
+
+### 2. CPU Affinity
+
+CPU affinity allows a process to run only on selected CPU cores.
+
+```bash
+taskset -c 2,3 ./realtime_app
+```
+
+This can reduce CPU migration and improve **CPU-cache utilization**, which can reduce unnecessary overhead.
+
+### 3. Real-Time Kernel / Preemption
+
+For applications requiring very low scheduling latency, a Linux kernel configured with **PREEMPT_RT** can be used.
+
+It makes more kernel operations preemptible and reduces the time a high-priority real-time task has to wait.
+
+This is useful for:
+
+* Industrial control
+* Robotics
+* Audio/video processing
+* Real-time monitoring
+
+### 4. Kernel Module Management
+
+Only necessary kernel modules should be loaded.
+
+To view currently loaded modules:
+
+```bash
+lsmod
+```
+
+An unnecessary module can be unloaded using:
+
+```bash
+sudo modprobe -r module_name
+```
+
+Removing unnecessary modules can reduce memory usage and unwanted kernel activity.
+
+However, a module should not be removed if an active device or service depends on it.
+
+### 5. Disable Unnecessary Services
+
+Background services also consume CPU and generate scheduling activity.
+
+For example:
+
+```bash
+systemctl disable --now service_name
+```
+
+Only unnecessary services should be disabled after verifying that they are not required by critical applications.
+
+### 6. Monitor Context Switching
+
+The administrator should measure the problem before and after optimization.
+
+Using `vmstat`:
+
+```bash
+vmstat 1
+```
+
+Using `pidstat`:
+
+```bash
+pidstat -w 1
+```
+
+Using `perf`:
+
+```bash
+perf stat -e context-switches,cpu-migrations ./realtime_app
+```
+
+These tools help determine whether context switches and CPU migrations are actually decreasing.
+
+### 7. Process Priority
+
+Normal processes can be assigned a lower CPU priority using `nice`/`renice`.
+
+```bash
+renice +10 -p PID
+```
+
+Critical real-time applications can instead be given appropriate real-time scheduling priority.
+
+### Conclusion
+
+The system can be optimized without hardware upgrades by combining **scheduler tuning, CPU affinity, appropriate process priorities, PREEMPT_RT, kernel-module management, and removal of unnecessary background services**. Performance should be measured using tools such as `vmstat`, `pidstat`, and `perf`. These techniques reduce context-switching overhead and scheduling latency while allowing critical real-time workloads to receive CPU resources promptly.
+
+
+ 3. Efficient Processing of 1 Million Log Entries Using Shell Scripting 
+
+### Introduction
+
+Processing **1 million log entries per day** using shell scripting requires an efficient approach because poorly designed scripts can take a long time to finish.
+
+The main goal is to ensure that the script completes within **2 minutes**. Therefore, we should avoid processing each line with separate commands and instead use efficient Linux utilities such as **`awk`, `grep`, `sort`, and `uniq`**.
+
+### 1. Avoid Processing Each Line with a Shell Loop
+
+An inefficient approach is:
+
+```bash
+while read line
+do
+    grep "ERROR" ...
+    awk ...
+done < logfile
+```
+
+This is slow because repeatedly executing external commands creates significant process overhead.
+
+Instead, process the entire file using `awk` or `grep`.
+
+### 2. Use `grep` for Fast Filtering
+
+For example, to find all error messages:
+
+```bash
+grep -F "ERROR" application.log
+```
+
+`grep -F` performs a **fixed-string search**, which is faster than regular-expression matching when a regular expression is not required.
+
+### 3. Use `awk` for One-Pass Processing
+
+`awk` is particularly useful because it can read and process the entire log in a single process.
+
+Example:
+
+```bash
+awk '
+{
+    count[$5]++
+}
+END {
+    for (x in count)
+        print x, count[x]
+}' application.log
+```
+
+This counts occurrences of values in field 5 without starting another process for every line.
+
+### 4. Count and Sort Log Information
+
+For example, to find the most frequent entries:
+
+```bash
+awk '{print $5}' application.log | sort | uniq -c | sort -nr
+```
+
+The operations are:
+
+1. `awk` — extracts the required field.
+2. `sort` — sorts the values.
+3. `uniq -c` — counts duplicate values.
+4. `sort -nr` — displays the highest counts first.
+
+### 5. Use Streaming Processing
+
+The script should process logs as a stream rather than loading all **1 million entries** into memory.
+
+Example:
+
+```bash
+awk '/ERROR/ {error++}
+     /WARNING/ {warning++}
+     END {
+         print "Errors:", error
+         print "Warnings:", warning
+     }' application.log
+```
+
+This requires only a small amount of memory regardless of the total number of lines.
+
+### 6. Parallel Processing
+
+If the machine has multiple CPU cores and the processing tasks are independent, the log can be divided into parts:
+
+```bash
+split -n l/4 application.log /tmp/logpart_
+```
+
+The parts can then be processed simultaneously:
+
+```bash
+for file in /tmp/logpart_*; do
+    awk '...' "$file" > "$file.out" &
+done
+
+wait
+```
+
+Parallel processing can reduce execution time, provided the number of parallel jobs is appropriate for the available CPU resources.
+
+### 7. Performance Optimization
+
+To meet the **2-minute requirement**:
+
+* Avoid `while read` loops for complex processing.
+* Avoid launching `grep`/`awk` separately for every line.
+* Use `awk` for one-pass processing.
+* Use `grep -F` for fixed-string searches.
+* Use pipelines to avoid unnecessary intermediate files.
+* Use parallel processing when appropriate.
+* Benchmark the final script using `time`.
+
+Example:
+
+```bash
+time ./process_logs.sh
+```
+
+### Conclusion
+
+For **1 million log entries**, an optimized shell script should rely mainly on `awk` and `grep` rather than line-by-line shell loops. `awk` provides efficient one-pass processing, while `grep`, `sort`, and `uniq` efficiently perform filtering and aggregation. Where sufficient CPU resources are available, parallel processing can further reduce execution time. This approach minimizes process-creation overhead and can meet the **2-minute target**, subject to testing on the actual server and log format.
+For this situation, the best approach is to **identify the high-CPU process, monitor it, and control only that process** without restarting the Linux system.
+
+### Process Management Strategy
+
+1. **Identify the faulty process**
+
+   * Use:
+
+     ```bash
+     top
+     ```
+
+     or
+
+     ```bash
+     htop
+     ```
+   * Sort by CPU usage and find the process using around **90% CPU**.
+   * Note its **PID (Process ID)** and process name.
+
+2. **Get detailed information**
+
+   ```bash
+   ps -p PID -o pid,ppid,user,%cpu,%mem,stat,cmd
+   ```
+
+   This shows the process owner, CPU/memory usage, status, and command.
+
+3. **Monitor the process**
+
+   ```bash
+   top -p PID
+   ```
+
+   This allows you to check whether CPU usage continues to remain high.
+
+4. **Reduce its priority**
+   If the process is not critical, lower its CPU scheduling priority:
+
+   ```bash
+   renice 10 -p PID
+   ```
+
+   This gives critical services more CPU time while allowing the faulty process to continue running.
+
+5. **Stop the process gracefully**
+   If CPU usage remains excessive and the process is not required:
+
+   ```bash
+   kill PID
+   ```
+
+   First use a normal `SIGTERM` so the process can clean up safely.
+
+6. **Force termination only if necessary**
+   If the process does not stop:
+
+   ```bash
+   kill -9 PID
+   ```
+
+   This should be the **last option**, because it does not allow the process to clean up resources.
+
+7. **Verify critical services**
+   Check important services using:
+
+   ```bash
+   systemctl status service-name
+   ```
+
+   and monitor overall system performance with:
+
+   ```bash
+   top
+   ```
+
+### Recommended Strategy
+
+**`top/htop → identify PID → ps → monitor → renice → kill → kill -9 only if necessary`**
+
+This strategy avoids a system restart and minimizes the effect on critical services by targeting only the faulty process.
+5.### Steps
+
+1. **Find the faulty process**
+
+   ```bash
+   top
+   ```
+
+   Find the process using **90% CPU** and note its **PID**.
+
+2. **Check process details**
+
+   ```bash
+   ps -p PID
+   ```
+
+3. **Monitor the process**
+
+   ```bash
+   top -p PID
+   ```
+
+4. **Reduce its priority**
+
+   ```bash
+   renice 10 -p PID
+   ```
+
+5. **Stop the process if needed**
+
+   ```bash
+   kill PID
+   ```
+
+6. **Force stop only if necessary**
+
+   ```bash
+   kill -9 PID
+   ```
+
+7. **Check critical services**
+
+   ```bash
+   systemctl status service-name
+   ```
+
+**Flow:** `top → PID → ps → monitor → renice → kill → check services`
