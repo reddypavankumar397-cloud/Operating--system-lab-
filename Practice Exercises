@@ -1,1 +1,430 @@
+Name :T.Pavan Kumar Reddy
+Reg No :192524082
+Course:Operating System
+Code:CSA0406
 
+
+
+1. Create a New Process Using System Calls
+
+Aim:
+To create a new process and display the process ID (PID) and parent process ID (PPID) using system calls.
+
+Pseudocode:
+
+START
+    Call fork() to create a new process
+    IF fork() returns 0
+        Display child PID
+        Display parent PID
+    ELSE
+        Display parent PID
+        Display child PID
+    END IF
+STOP
+
+Result:
+Thus, a new process was created successfully and the PID and PPID were displayed.
+
+2. Copy Content from One File to Another
+
+Aim:
+To copy the contents of one file into another using UNIX system calls.
+
+Pseudocode:
+
+START
+    Open source file in read mode
+    Open destination file in write mode
+    WHILE data is available
+        Read data from source
+        Write data to destination
+    END WHILE
+    Close both files
+STOP
+
+Result:
+Thus, the contents of the source file were successfully copied to the destination file.
+
+3. FCFS CPU Scheduling
+
+Aim:
+To implement the First Come First Served (FCFS) CPU scheduling algorithm using C.
+
+Pseudocode:
+
+START
+    Read number of processes
+    Read burst time of each process
+    Set waiting time of first process = 0
+    FOR each remaining process
+        Calculate waiting time
+    END FOR
+    Calculate turnaround time
+    Calculate average waiting time
+    Calculate average turnaround time
+    Display results
+STOP
+
+Result:
+Thus, FCFS CPU scheduling was successfully implemented and the waiting time and turnaround time were calculated.
+
+4. Shortest Execution Time Scheduling
+
+Aim:
+To implement a CPU scheduling algorithm that selects the waiting process with the smallest execution time.
+
+Pseudocode:
+
+START
+    Read number of processes
+    Read burst time of each process
+    Arrange processes according to smallest burst time
+    Execute processes in sorted order
+    Calculate waiting time
+    Calculate turnaround time
+    Display results
+STOP
+
+Result:
+Thus, the process with the smallest execution time was selected and scheduling results were calculated successfully.
+
+5. Highest Priority Scheduling
+
+Aim:
+To implement a CPU scheduling algorithm that selects the waiting process with the highest priority.
+
+Pseudocode:
+
+START
+    Read number of processes
+    Read burst time and priority
+    Arrange processes according to priority
+    Execute the highest-priority process first
+    Calculate waiting time
+    Calculate turnaround time
+    Display results
+STOP
+
+Result:
+Thus, priority scheduling was successfully implemented and the scheduling times were calculated.
+
+6. Pre-emptive Priority Scheduling
+
+Aim:
+To implement the pre-emptive priority CPU scheduling algorithm using C.
+
+Pseudocode:
+
+START
+    Read processes, burst times and priorities
+    Set remaining burst time
+    FOR every unit of CPU time
+        Select the highest-priority available process
+        Execute it for one time unit
+        Update remaining burst time
+    END FOR
+    Calculate waiting and turnaround times
+    Display results
+STOP
+
+Result:
+Thus, pre-emptive priority scheduling was successfully implemented.
+
+7. Non-Preemptive SJF Scheduling
+
+Aim:
+To implement the non-preemptive Shortest Job First (SJF) scheduling algorithm.
+
+Pseudocode:
+
+START
+    Read number of processes
+    Read burst times
+    Select the process with the smallest burst time
+    Execute it completely
+    Select the next shortest process
+    Repeat until all processes are completed
+    Calculate waiting and turnaround times
+    Display results
+STOP
+
+Result:
+Thus, the non-preemptive SJF scheduling algorithm was successfully implemented.
+
+8. Round Robin Scheduling
+
+Aim:
+To implement the Round Robin CPU scheduling algorithm using C.
+
+Pseudocode:
+
+START
+    Read number of processes
+    Read burst times
+    Read time quantum
+    Place all processes in ready queue
+    WHILE processes remain
+        Select process from queue
+        Execute for time quantum or remaining burst time
+        Update remaining burst time
+        IF process is incomplete
+            Add it back to queue
+        END IF
+    END WHILE
+    Calculate waiting and turnaround times
+STOP
+
+Result:
+Thus, the Round Robin scheduling algorithm was successfully implemented.
+
+9. Inter-Process Communication Using Shared Memory
+
+Aim:
+To demonstrate inter-process communication using shared memory.
+
+Pseudocode:
+
+START
+    Create shared memory segment
+    Attach shared memory
+    Create processes
+    Writer process writes data
+    Reader process reads data
+    Detach shared memory
+    Remove shared memory
+STOP
+
+Result:
+Thus, communication between processes using shared memory was successfully demonstrated.
+
+10. Inter-Process Communication Using Message Queue
+
+Aim:
+To demonstrate inter-process communication using message queues.
+
+Pseudocode:
+
+START
+    Create a message queue
+    Create sender and receiver processes
+    Sender sends message to queue
+    Receiver reads message from queue
+    Display received message
+    Remove message queue
+STOP
+
+Result:
+Thus, inter-process communication using message queues was successfully demonstrated.
+
+11. Multithreading
+
+Aim:
+To demonstrate the concept of multithreading using a C program.
+
+Pseudocode:
+
+START
+    Create a thread
+    Execute thread function
+    Perform required task
+    Main thread waits for created thread
+    Terminate thread
+STOP
+
+Result:
+Thus, multithreading was successfully implemented using C.
+
+12. Dining Philosophers Problem
+
+Aim:
+To simulate the Dining Philosophers synchronization problem using C.
+
+Pseudocode:
+
+START
+    Create philosophers
+    Create one fork for each philosopher
+    REPEAT
+        Philosopher thinks
+        Philosopher tries to acquire required forks
+        IF both forks are available
+            Philosopher eats
+            Release both forks
+        ELSE
+            Philosopher waits
+        END IF
+    UNTIL execution completes
+STOP
+
+Result:
+Thus, the Dining Philosophers problem was successfully simulated.
+
+13. Memory Allocation Strategies
+
+Aim:
+To implement various memory allocation strategies using C.
+
+Pseudocode:
+
+START
+    Read memory blocks
+    Read process memory requirements
+    Select an allocation strategy
+    Allocate suitable memory block
+    Update available memory
+    Display allocation
+STOP
+
+Result:
+Thus, memory allocation strategies were successfully implemented.
+
+14. Single-Level Directory
+
+Aim:
+To organize files using a single-level directory structure.
+
+Pseudocode:
+
+START
+    Create directory
+    Display menu
+    Read user choice
+    IF create
+        Add file
+    ELSE IF delete
+        Remove file
+    ELSE IF search
+        Search for file
+    ELSE IF display
+        Display files
+    END IF
+STOP
+
+Result:
+Thus, the single-level directory structure was successfully implemented.
+
+15. Two-Level Directory
+
+Aim:
+To organize files using a two-level directory structure.
+
+Pseudocode:
+
+START
+    Create master directory
+    Create user directories
+    Select user
+    Create, delete or search files
+    Display files belonging to selected user
+STOP
+
+Result:
+Thus, the two-level directory structure was successfully implemented.
+
+16. Random Access File
+
+Aim:
+To implement a random access file for processing employee details.
+
+Pseudocode:
+
+START
+    Create employee file
+    Read employee details
+    Store records in file
+    Read required record number
+    Move file pointer to required record
+    Display employee details
+STOP
+
+Result:
+Thus, employee records were successfully stored and accessed randomly.
+
+17. Banker's Algorithm
+
+Aim:
+To implement the Banker's algorithm for deadlock avoidance.
+
+Pseudocode:
+
+START
+    Read number of processes and resources
+    Read allocation matrix
+    Read maximum matrix
+    Calculate Need matrix
+    Calculate Available resources
+    Find a process whose Need <= Available
+    Add its allocated resources to Available
+    Repeat until all processes finish
+    IF all processes finish
+        System is in safe state
+    ELSE
+        System is unsafe
+    END IF
+STOP
+
+Result:
+Thus, the Banker's algorithm was successfully implemented to determine the safe state of the system.
+
+18. Producer-Consumer Using Semaphores
+
+Aim:
+To implement the Producer-Consumer problem using semaphores.
+
+Pseudocode:
+
+START
+    Initialize empty and full semaphores
+    Producer creates an item
+    Wait for empty space
+    Add item to buffer
+    Signal full
+    Consumer waits for available item
+    Remove item from buffer
+    Signal empty
+    Repeat
+STOP
+
+Result:
+Thus, the Producer-Consumer problem was successfully implemented using semaphores.
+
+19. Process Synchronization Using Mutex Locks
+
+Aim:
+To implement process/thread synchronization using mutex locks.
+
+Pseudocode:
+
+START
+    Create shared resource
+    Initialize mutex
+    Create threads
+    Lock mutex before accessing shared resource
+    Perform operation
+    Unlock mutex
+    Repeat for other threads
+STOP
+
+Result:
+Thus, process synchronization using mutex locks was successfully implemented.
+
+20. Reader-Writer Problem
+
+Aim:
+To implement the Reader-Writer synchronization problem using semaphores.
+
+Pseudocode:
+
+START
+    Initialize semaphores
+    Reader requests access
+    Allow multiple readers when no writer is active
+    Writer requests exclusive access
+    Allow writer when no reader is active
+    Perform read/write operation
+    Release resource
+STOP
+
+Result:
+Thus, the Reader-Writer problem was successfully implemented using semaphores.
