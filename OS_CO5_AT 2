@@ -1,0 +1,160 @@
+Name :T.Pavan Kumar Reddy
+Reg No:192524082
+Course:Operating System
+Code:CAS0406
+Q1. File System Space Management
+BEGIN
+    SET threshold = 80%
+    usage = GET_DISK_USAGE()
+
+    IF usage > threshold THEN
+        PRINT "Disk usage exceeded 80%"
+
+        log_files = GET_LOG_FILES()
+        SORT log_files BY size DESCENDING
+
+        FOR each file IN log_files DO
+            IF file.is_critical = FALSE THEN
+                IF file.size > LARGE_FILE_LIMIT THEN
+                    COMPRESS file
+                ELSE
+                    ROTATE file
+                ENDIF
+            ENDIF
+
+            usage = GET_DISK_USAGE()
+
+            IF usage <= threshold THEN
+                BREAK
+            ENDIF
+        ENDFOR
+
+        IF usage > threshold THEN
+            PRINT "Warning: Disk usage is still high"
+        ENDIF
+    ELSE
+        PRINT "Disk usage is normal"
+    ENDIF
+END
+Q2. Priority-Based CPU Scheduling
+BEGIN
+    INPUT process_list
+
+    FOR each process IN process_list DO
+        SET process.remaining_time = process.burst_time
+    ENDFOR
+
+    SORT process_list BY priority DESCENDING
+
+    WHILE process_list IS NOT EMPTY DO
+        process = SELECT process WITH HIGHEST PRIORITY
+
+        ALLOCATE CPU
+        EXECUTE process FOR TIME_QUANTUM
+
+        process.remaining_time =
+            process.remaining_time - TIME_QUANTUM
+
+        IF process.remaining_time <= 0 THEN
+            PRINT process.name, "COMPLETED"
+            REMOVE process FROM process_list
+        ELSE
+            REDUCE process.priority SLIGHTLY
+            REINSERT process INTO process_list
+        ENDIF
+    ENDWHILE
+
+    PRINT "All processes completed"
+END
+Q3. RAM Allocation for Virtual Machines
+BEGIN
+    SET total_RAM = 16 GB
+    SET host_reserved = 4 GB
+    SET min_RAM = 2 GB
+
+    available_RAM = total_RAM - host_reserved
+
+    INPUT number_of_VMs
+
+    FOR i = 1 TO number_of_VMs DO
+
+        IF available_RAM >= min_RAM THEN
+            ALLOCATE min_RAM TO VM[i]
+            available_RAM = available_RAM - min_RAM
+
+            PRINT "RAM allocated to VM", i
+        ELSE
+            PRINT "Insufficient RAM for VM", i
+            PRINT "VM will not be started"
+        ENDIF
+
+    ENDFOR
+
+    PRINT "Remaining RAM =", available_RAM
+END
+Q4. Hypervisor Selection
+BEGIN
+    INPUT performance_required
+    INPUT budget
+    INPUT hardware_access
+    INPUT security_required
+
+    IF hardware_access = TRUE AND
+       performance_required = HIGH THEN
+
+        selected_hypervisor = "Type 1"
+
+    ELSE IF budget = LOW AND
+            performance_required = MODERATE THEN
+
+        selected_hypervisor = "Type 2"
+
+    ELSE IF security_required = HIGH THEN
+
+        selected_hypervisor = "Type 1"
+
+    ELSE
+        selected_hypervisor = "Type 2"
+    ENDIF
+
+    PRINT "Selected Hypervisor =", selected_hypervisor
+
+    IF selected_hypervisor = "Type 1" THEN
+        PRINT "Suitable for high performance and direct hardware access"
+    ELSE
+        PRINT "Suitable for low-cost and desktop environments"
+    ENDIF
+END
+Q5. CPU and Memory Resource Limiting
+BEGIN
+    INPUT application_list
+
+    FOR each app IN application_list DO
+
+        CREATE cgroup FOR app
+
+        INPUT cpu_limit
+        INPUT memory_limit
+
+        SET CPU limit = cpu_limit
+        SET MEMORY limit = memory_limit
+
+        ASSIGN app TO cgroup
+
+        MONITOR app CPU and MEMORY usage
+
+        IF CPU usage > cpu_limit THEN
+            THROTTLE CPU usage
+        ENDIF
+
+        IF MEMORY usage > memory_limit THEN
+            LIMIT memory usage
+        ENDIF
+
+        PRINT app, "resource limits applied"
+
+    ENDFOR
+
+    PRINT "All applications are being monitored"
+END
+END
